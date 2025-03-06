@@ -28,6 +28,6 @@ jobs:
         cmake --build . --config ${{ matrix.build }}
         echo "----------------------------------------------------"
         echo "Build Files:"
-        ls -laR
+        ls -R
         echo "----------------------------------------------------"
         ctest -VV -C ${{ matrix.build }}
