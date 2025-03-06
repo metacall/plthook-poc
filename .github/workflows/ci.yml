@@ -26,4 +26,8 @@ jobs:
         cd build
         cmake -DCMAKE_BUILD_TYPE=${{ matrix.build }} ..
         cmake --build . --config ${{ matrix.build }}
+        echo "----------------------------------------------------"
+        echo "Build Files:"
+        ls -laR
+        echo "----------------------------------------------------"
         ctest -VV -C ${{ matrix.build }}

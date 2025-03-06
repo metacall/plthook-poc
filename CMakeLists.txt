@@ -29,10 +29,13 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 # ==12635==    by 0x4896564: (below main) (libc-start.c:332)
 string(REGEX MATCH "Linux" PROJECT_OS_LINUX ${CMAKE_SYSTEM_NAME})
 
-if(PROJECT_OS_LINUX)
     # Use -O2 by now until we can find why string_function is NULL
+if(PROJECT_OS_LINUX)
     set(CMAKE_C_FLAGS_RELEASE "-O2")
     set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+elseif(WIN32)
+    set(CMAKE_C_FLAGS_RELEASE "/O1")
+    set(CMAKE_CXX_FLAGS_RELEASE "/O1")
 endif()
 
 # Default build type
