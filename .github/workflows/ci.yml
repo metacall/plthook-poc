@@ -19,8 +19,11 @@ jobs:
         ]
     runs-on: ${{ matrix.os }}
     steps:
+    - uses: actions/checkout@v4
     - name: Build & Test Project
       run: |
-        cmake -DCMAKE_BUILD_TYPE=${{ matrix.build }} .
+        mkdir build
+        cd build
+        cmake -DCMAKE_BUILD_TYPE=${{ matrix.build }} ..
         cmake --build . --config ${{ matrix.build }}
         ctest -VV -C ${{ matrix.build }}
