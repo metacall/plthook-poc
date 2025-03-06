@@ -21,8 +21,6 @@ jobs:
     steps:
     - name: Build & Test Project
       run: |
-        mkdir build
-        cd build
-        cmake -DCMAKE_BUILD_TYPE=${{ matrix.build }} ..
+        cmake -DCMAKE_BUILD_TYPE=${{ matrix.build }} .
         cmake --build . --config ${{ matrix.build }}
         ctest -VV -C ${{ matrix.build }}
