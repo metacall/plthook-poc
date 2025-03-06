@@ -4,6 +4,36 @@ project(MetaCallPoC VERSION 1.0)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
+# TODO: -O3 generates a segmentation fault on Linux
+#
+# METACALL load from normal executable
+# should_not_call_init constructor has been called and it should not
+# NORMAL EXECUTABLE enum symbols node_loader (1): fflush -> 0x4864018
+# ...
+# NORMAL EXECUTABLE enum symbols node_loader (11): __cxa_finalize -> 0x4863ff8
+# INSIDE NODE LOADER (before string_function call): (nil)
+# ==12635== Jump to the invalid address stated on the next line
+# ==12635==    at 0x0: ???
+# ==12635==    by 0x4861188: node_loader (in /metacall-plthook-poc/build/libnode_loader.so)
+# ==12635==    by 0x4856638: load_normal_executable (in /metacall-plthook-poc/build/libmetacall.so)
+# ==12635==    by 0x4896564: (below main) (libc-start.c:332)
+# ==12635==  Address 0x0 is not stack'd, malloc'd or (recently) free'd
+# ==12635==
+# ==12635== Process terminating with default action of signal 11 (SIGSEGV)
+# ==12635==  Bad permissions for mapped region at address 0x0
+# ==12635==    at 0x0: ???
+# ==12635==    by 0x4861188: node_loader (in /metacall-plthook-poc/build/libnode_loader.so)
+# ==12635==    by 0x4856638: load_normal_executable (in /metacall-plthook-poc/build/libmetacall.so)
+# ==12635==    by 0x4896564: (below main) (libc-start.c:332)
+string(REGEX MATCH "Linux" PROJECT_OS_LINUX ${CMAKE_SYSTEM_NAME})
+
+if(PROJECT_OS_LINUX)
+    # Use -O2 by now until we can find why string_function is NULL
+    set(CMAKE_C_FLAGS_RELEASE "-O2")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+endif()
 
 # Default build type
 if(NOT CMAKE_BUILD_TYPE)
