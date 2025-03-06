@@ -37,7 +37,7 @@ elseif(WIN32)
     # /O2 and /O2b not supported, use /O1 /Ob1 by now until we
     # can find why string_function is an non-NULL invalid pointer
     set(CMAKE_C_FLAGS_RELEASE "/O1")
-    set(CMAKE_CXX_FLAGS_RELEASE "O1")
+    set(CMAKE_CXX_FLAGS_RELEASE "/O1")
 endif()
 
 # Default build type
