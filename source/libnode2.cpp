@@ -11,7 +11,7 @@ public:
     should_not_call_init() {
         char * normal_executable = getenv("NORMAL_EXECUTABLE");
         if (normal_executable == NULL) {
-            std::cout << "should_not_call_init constructor has been called and it should not" << std::endl;
+            std::cout << "ERROR: should_not_call_init constructor has been called and it should not" << std::endl;
             assert(0);
         }
     }
