@@ -29,13 +29,15 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 # ==12635==    by 0x4896564: (below main) (libc-start.c:332)
 string(REGEX MATCH "Linux" PROJECT_OS_LINUX ${CMAKE_SYSTEM_NAME})
 
-    # Use -O2 by now until we can find why string_function is NULL
 if(PROJECT_OS_LINUX)
+    # -O3 not supported, use -O2 by now until we can find why string_function is NULL
     set(CMAKE_C_FLAGS_RELEASE "-O2")
     set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 elseif(WIN32)
-    # set(CMAKE_C_FLAGS_RELEASE "/O1")
-    # set(CMAKE_CXX_FLAGS_RELEASE "/O1")
+    # /O2 and /O2b not supported, use /O1 /Ob1 by now until we
+    # can find why string_function is an non-NULL invalid pointer
+    set(CMAKE_C_FLAGS_RELEASE "/O1")
+    set(CMAKE_CXX_FLAGS_RELEASE "O1")
 endif()
 
 # Default build type
