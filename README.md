@@ -10,6 +10,8 @@ The feature once implemented will solve the following isuses:
 
 ## How it works
 
+This PoC is based on a modified version of [PLTHook Library](https://github.com/metacall/plthook) from [@kubo](https://github.com/kubo).
+
 First of all we have the following preconditions:
  - `libmetacall` which loads `libnode_loader`.
  - `libnode_loader` is not linked to anything but we are going to weakly link it to `libnode`, this means that in Windows it must be linked with `/DELAYLOAD`, in Linux and MacOS it must not be linked.
@@ -38,5 +40,17 @@ There are two possible cases, this happens before loading libnode_loader:
 
 ## Outcome
 
-With this methodology we prevent loading a library that contains a runtime. This is very dangerous because numerous runtimes rely on constructors (C++ constructors of static class delacarations or C compiler dependant constructor mechanisms like GNU or Clang `__attribute__((destructor))`) that are mutually exclusive between them. So if we only load the library but we do not call method of the library, it can still cause errors.
+With this methodology we prevent loading a library that contains a runtime. This is very dangerous because numerous runtimes rely on constructors (C++ constructors of static class delacarations or C compiler dependant constructor mechanisms like GNU or Clang `__attribute__((constructor))`) that are mutually exclusive between them. So if we only load the library but we do not call method of the library, it can still cause errors.
 The loaders will be redirected to the proper runtime, reusing the functions and instance of the already running runtime.
+
+## Features
+
+ - Works for Linux, Windows and MacOS with most of the architectures of each platform: https://github.com/metacall/plthook?tab=readme-ov-file#supported-platforms
+ - Hooks the functions and prevents runtime instances to be initialized, so it's fully transparent and has no side effects on the runtimes.
+
+## Limitations
+
+ - Currently it does not support `-O3` on Linux with GCC compiler, neither `/O2` and `/Ob2`. Works in MacOS with `-O3` and Clang.
+ - It does not work well (https://github.com/kubo/plthook/issues/51) with `aarch64` architecture under Linux with the following flags:
+   - Library: `-shared -fPIC -Wall -Wl,-z,relro,-z,now -O3`
+   - Executable: `-fPIE -pie -Wall -Wl,-z,relro,-z,now -O3`
