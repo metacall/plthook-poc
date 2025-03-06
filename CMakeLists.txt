@@ -34,8 +34,8 @@ if(PROJECT_OS_LINUX)
     set(CMAKE_C_FLAGS_RELEASE "-O2")
     set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 elseif(WIN32)
-    set(CMAKE_C_FLAGS_RELEASE "/O1")
-    set(CMAKE_CXX_FLAGS_RELEASE "/O1")
+    # set(CMAKE_C_FLAGS_RELEASE "/O1")
+    # set(CMAKE_CXX_FLAGS_RELEASE "/O1")
 endif()
 
 # Default build type
