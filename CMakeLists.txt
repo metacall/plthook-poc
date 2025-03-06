@@ -48,8 +48,8 @@ endif()
 # Debug
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     if(WIN32)
-        add_compile_options(/fsanitize=address)
-        add_link_options(/fsanitize=address)
+        # TODO: Not working, seems not been able to locate sanitizer library on ctest
+        # add_compile_options(/fsanitize=address)
     else()
         add_compile_options(-fsanitize=address)
         add_compile_options(-fsanitize=undefined)
