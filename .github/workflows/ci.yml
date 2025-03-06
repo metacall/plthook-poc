@@ -20,7 +20,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - name: Build & Test Project
-      run:
+      run: |
         mkdir build
         cd build
         cmake -DCMAKE_BUILD_TYPE=${{ matrix.build }} ..
