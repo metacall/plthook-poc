@@ -93,9 +93,7 @@ int load_normal_executable() {
 }
 
 int load_node_dynamic(void) {
-// #ifndef WIN32
     plthook_t *plthook_node_loader;
-// #endif
     dyn_handle_t libnode, node_loader;
 
     printf("METACALL load from node compiled dynamically to libnode\n");
@@ -133,40 +131,6 @@ int load_node_dynamic(void) {
     // assert(dyn_sym(libnode, "string_function2", (void (**)(void))&string_fp2) == 0);
 
     // Patch the node_loader
-/*#ifdef WIN32
-    {
-        HMODULE lib = node_loader;
-        PIMAGE_DOS_HEADER dos = (PIMAGE_DOS_HEADER)lib;
-        PIMAGE_NT_HEADERS nt = (PIMAGE_NT_HEADERS)((uintptr_t)lib + dos->e_lfanew);
-        PIMAGE_DELAYLOAD_DESCRIPTOR dload = (PIMAGE_DELAYLOAD_DESCRIPTOR)((uintptr_t)lib +
-            nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT].VirtualAddress);
-        while (dload->DllNameRVA)
-        {
-            char* dll = (char*)((uintptr_t)lib + dload->DllNameRVA);
-            if (!strcmp(dll, "libnode2.dll")) {
-                PIMAGE_THUNK_DATA firstthunk = (PIMAGE_THUNK_DATA)((uintptr_t)lib + dload->ImportNameTableRVA);
-                PIMAGE_THUNK_DATA functhunk = (PIMAGE_THUNK_DATA)((uintptr_t)lib + dload->ImportAddressTableRVA);
-                while (firstthunk->u1.AddressOfData)
-                {
-                    if (firstthunk->u1.Ordinal & IMAGE_ORDINAL_FLAG) {}
-                    else {
-                        PIMAGE_IMPORT_BY_NAME byName = (PIMAGE_IMPORT_BY_NAME)((uintptr_t)lib + firstthunk->u1.AddressOfData);
-                        if (!strcmp((char*)byName->Name, "string_function")) {
-                            DWORD oldProtect;
-                            DWORD tmp;
-                            VirtualProtect(&functhunk->u1.Function, sizeof(uintptr_t), PAGE_EXECUTE_READWRITE, &oldProtect);
-                            functhunk->u1.Function = (uintptr_t)string_fp;
-                            VirtualProtect(&functhunk->u1.Function, sizeof(uintptr_t), oldProtect, &tmp);
-                        }
-                    }
-                    functhunk++;
-                    firstthunk++;
-                }
-            }
-            dload++;
-        }
-    }
-#else*/
     {
         if (plthook_open_by_handle(&plthook_node_loader, node_loader) != 0) {
             printf("plthook_open error: %s\n", plthook_error());
@@ -203,7 +167,6 @@ int load_node_dynamic(void) {
             // We should have a hash map of all the symbols of each library dependency of node_loader
         }
     }
-// #endif
 
     // Execute the code
     char *str = node_loader_fp();
@@ -211,9 +174,7 @@ int load_node_dynamic(void) {
     assert(strcmp(str, "node-dynamic") == 0);
 
     // Destroy everything
-// #ifndef WIN32
     plthook_close(plthook_node_loader);
-// #endif
     dyn_close(node_loader);
     dyn_close(libnode);
 
@@ -221,9 +182,7 @@ int load_node_dynamic(void) {
 }
 
 int load_node_static(char *(*string_function_static)(void)) {
-// #ifndef WIN32
     plthook_t *plthook_node_loader;
-// #endif
     dyn_handle_t current_process, node_loader;
 
     // TODO: In theory we should test linking against libmetacall.a, but I think there won't be
@@ -270,40 +229,6 @@ int load_node_static(char *(*string_function_static)(void)) {
     // assert(dyn_sym(current_process, "string_function2", (void (**)(void))&string_fp2) == 0);
 
     // Patch the node_loader
-/*#ifdef WIN32
-    {
-        HMODULE lib = node_loader;
-        PIMAGE_DOS_HEADER dos = (PIMAGE_DOS_HEADER)lib;
-        PIMAGE_NT_HEADERS nt = (PIMAGE_NT_HEADERS)((uintptr_t)lib + dos->e_lfanew);
-        PIMAGE_DELAYLOAD_DESCRIPTOR dload = (PIMAGE_DELAYLOAD_DESCRIPTOR)((uintptr_t)lib +
-            nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT].VirtualAddress);
-        while (dload->DllNameRVA)
-        {
-            char* dll = (char*)((uintptr_t)lib + dload->DllNameRVA);
-            if (!strcmp(dll, "libnode2.dll")) {
-                PIMAGE_THUNK_DATA firstthunk = (PIMAGE_THUNK_DATA)((uintptr_t)lib + dload->ImportNameTableRVA);
-                PIMAGE_THUNK_DATA functhunk = (PIMAGE_THUNK_DATA)((uintptr_t)lib + dload->ImportAddressTableRVA);
-                while (firstthunk->u1.AddressOfData)
-                {
-                    if (firstthunk->u1.Ordinal & IMAGE_ORDINAL_FLAG) {}
-                    else {
-                        PIMAGE_IMPORT_BY_NAME byName = (PIMAGE_IMPORT_BY_NAME)((uintptr_t)lib + firstthunk->u1.AddressOfData);
-                        if (!strcmp((char*)byName->Name, "string_function")) {
-                            DWORD oldProtect;
-                            DWORD tmp;
-                            VirtualProtect(&functhunk->u1.Function, sizeof(uintptr_t), PAGE_EXECUTE_READWRITE, &oldProtect);
-                            functhunk->u1.Function = (uintptr_t)string_fp;
-                            VirtualProtect(&functhunk->u1.Function, sizeof(uintptr_t), oldProtect, &tmp);
-                        }
-                    }
-                    functhunk++;
-                    firstthunk++;
-                }
-            }
-            dload++;
-        }
-    }
-#else*/
     {
         if (plthook_open_by_handle(&plthook_node_loader, node_loader) != 0) {
             printf("plthook_open error: %s\n", plthook_error());
@@ -340,7 +265,6 @@ int load_node_static(char *(*string_function_static)(void)) {
             // We should have a hash map of all the symbols of each library dependency of node_loader
         }
     }
-// #endif
 
     // Execute the code
     char *str = node_loader_fp();
@@ -348,9 +272,7 @@ int load_node_static(char *(*string_function_static)(void)) {
     assert(strcmp(str, "node-static") == 0);
 
     // Destroy everything
-// #ifndef WIN32
     plthook_close(plthook_node_loader);
-// #endif
     dyn_close(node_loader);
 
     return 0;
