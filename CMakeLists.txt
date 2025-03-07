@@ -82,15 +82,15 @@ FetchContent_MakeAvailable(PLTHook)
 set(PLTHook_INCLUDE_DIR "${PLTHook_SOURCE_DIR}")
 
 if(APPLE)
-    set(PLTHOOK_SOURCE "${PLTHook_SOURCE_DIR}/plthook_osx.c")
+    set(PLTHook_SOURCE "${PLTHook_SOURCE_DIR}/plthook_osx.c")
 elseif(WIN32 OR MINGW)
-    set(PLTHOOK_SOURCE "${PLTHook_SOURCE_DIR}/plthook_win32.c")
+    set(PLTHook_SOURCE "${PLTHook_SOURCE_DIR}/plthook_win32.c")
 else()
-    set(PLTHOOK_SOURCE "${PLTHook_SOURCE_DIR}/plthook_elf.c")
+    set(PLTHook_SOURCE "${PLTHook_SOURCE_DIR}/plthook_elf.c")
 endif()
 
 # MetaCall Library
-add_library(metacall SHARED source/metacall.c ${PLTHOOK_SOURCE})
+add_library(metacall SHARED source/metacall.c ${PLTHook_SOURCE})
 target_include_directories(metacall PRIVATE ${PLTHook_INCLUDE_DIR})
 target_link_libraries(metacall ${CMAKE_DL_LIBS})
 
