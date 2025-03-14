@@ -16,6 +16,9 @@
 #include <psapi.h>
 #endif
 
+// Add libnode for testing if it is linked to it
+#include "libnode.h"
+
 void listLibraries() {
 #ifdef __linux__
     // "/proc/self/maps" refers to the memory map of the current process
@@ -81,6 +84,7 @@ void listLibraries() {
 }
 
 int main() {
+    std::cout << string_function() << std::endl;
     listLibraries();
     return 0;
 }

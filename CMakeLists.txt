@@ -146,7 +146,7 @@ add_library(libnode2 SHARED source/libnode2.c source/libnode2.cpp)
 
 # List libraries of a process
 add_executable(list-library-test source/list-library-test.cpp)
-target_link_libraries(list-library-test ${CMAKE_DL_LIBS})
+target_link_libraries(list-library-test ${CMAKE_DL_LIBS} libnode)
 add_test(NAME list-library-test
     COMMAND $<TARGET_FILE:list-library-test>
 )
