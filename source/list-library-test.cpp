@@ -7,6 +7,10 @@
 #include <set>
 #endif
 
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#endif
+
 #ifdef WIN32
 #include <windows.h>
 #include <psapi.h>
@@ -43,7 +47,15 @@ void listLibraries() {
 #endif
 
 #ifdef __APPLE__
-    // TODO
+    // Get the number of loaded images (dynamic libraries)
+    unsigned int imageCount = _dyld_image_count();
+
+    // Iterate over all loaded images and print their paths
+    std::cout << "Libraries loaded by the current process:\n";
+    for (unsigned int i = 0; i < imageCount; ++i) {
+        const char* imageName = _dyld_get_image_name(i);
+        std::cout << imageName << std::endl;
+    }
 #endif
 
 #ifdef WIN32
