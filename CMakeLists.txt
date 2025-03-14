@@ -92,6 +92,7 @@ endif()
 # MetaCall Library
 add_library(metacall SHARED source/metacall.c ${PLTHook_SOURCE})
 target_include_directories(metacall PRIVATE ${PLTHook_INCLUDE_DIR})
+target_compile_definitions(metacall PUBLIC PLTHOOK_DEBUG=1) # Add debug info for PLTHook
 target_link_libraries(metacall ${CMAKE_DL_LIBS})
 
 # NodeJS library of NodeJS static
