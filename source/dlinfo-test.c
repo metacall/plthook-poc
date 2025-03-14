@@ -29,11 +29,11 @@ int main() {
     }
 
     // Use dlsym to find a symbol in the library (e.g., "sin" in libm.so)
-    void *symbol = dlsym(handle, "sin");
+    void *symbol = dlsym(handle, "string_function");
     if (symbol) {
-        printf("Found symbol 'sin' at address: %p\n", symbol);
+        printf("Found symbol 'string_function' at address: %p\n", symbol);
     } else {
-        printf("Symbol 'sin' not found: %s\n", dlerror());
+        printf("Symbol 'string_function' not found: %s\n", dlerror());
     }
 
     // Close the library handle

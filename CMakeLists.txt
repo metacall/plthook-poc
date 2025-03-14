@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.10)
 project(MetaCallPoC VERSION 1.0)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # Required for the IDE
+set(CMAKE_VERBOSE_MAKEFILE ON) # Debugging
 
 # TODO: -O3 generates a segmentation fault on Linux
 #
@@ -147,4 +147,7 @@ add_library(libnode2 SHARED source/libnode2.c source/libnode2.cpp)
 if(NOT WIN32 AND NOT APPLE)
     add_executable(dlinfo-test source/dlinfo-test.c)
     target_link_libraries(dlinfo-test ${CMAKE_DL_LIBS})
+    add_test(NAME dlinfo-test
+        COMMAND $<TARGET_FILE:dlinfo-test>
+    )
 endif()
