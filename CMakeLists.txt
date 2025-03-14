@@ -92,7 +92,7 @@ endif()
 # MetaCall Library
 add_library(metacall SHARED source/metacall.c ${PLTHook_SOURCE})
 target_include_directories(metacall PRIVATE ${PLTHook_INCLUDE_DIR})
-target_compile_definitions(metacall PUBLIC PLTHOOK_DEBUG=1) # Add debug info for PLTHook
+# target_compile_definitions(metacall PUBLIC PLTHOOK_DEBUG=1) # Add debug info for PLTHook
 target_link_libraries(metacall ${CMAKE_DL_LIBS})
 
 # NodeJS library of NodeJS static
@@ -144,11 +144,9 @@ target_link_options(node_loader
 # NodeJS library of NodeJS Loader
 add_library(libnode2 SHARED source/libnode2.c source/libnode2.cpp)
 
-# Additional dlinfo test (unrelated to the PoC)
-if(NOT WIN32 AND NOT APPLE)
-    add_executable(dlinfo-test source/dlinfo-test.c)
-    target_link_libraries(dlinfo-test ${CMAKE_DL_LIBS})
-    add_test(NAME dlinfo-test
-        COMMAND $<TARGET_FILE:dlinfo-test>
-    )
-endif()
+# List libraries of a process
+add_executable(list-library-test source/list-library-test.cpp)
+target_link_libraries(list-library-test ${CMAKE_DL_LIBS})
+add_test(NAME list-library-test
+    COMMAND $<TARGET_FILE:list-library-test>
+)
