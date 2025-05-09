@@ -51,6 +51,3 @@ The loaders will be redirected to the proper runtime, reusing the functions and 
 ## Limitations
 
  - Currently it does not support `-O3` on Linux with GCC compiler, neither `/O2` and `/Ob2` in Windows with MSVC. It works in MacOS with `-O3` and Clang.
- - It does not work well (https://github.com/kubo/plthook/issues/51) with `aarch64` architecture under Linux with the following flags:
-   - Library: `-shared -fPIC -Wall -Wl,-z,relro,-z,now -O3`
-   - Executable: `-fPIE -pie -Wall -Wl,-z,relro,-z,now -O3`
