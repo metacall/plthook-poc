@@ -53,21 +53,21 @@ jobs:
             toolchain:p
             cmake:p
             ninja:p
-      - name: Run Tests (Debug)
+      - name: Build & Test Project (Debug)
         shell: msys2 {0}
+        working-directory: ${{ github.workspace }}
         run: |
-          mkdir build
-          cd build
+          mkdir build-debug
+          cd build-debug
           cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug ..
           cmake --build . --config Debug
           ctest -VV -C Debug
-      - name: Run Tests (Release)
+      - name: Build & Test Project (Release)
         shell: msys2 {0}
+        working-directory: ${{ github.workspace }}
         run: |
-          cd ..
-          rm -rf build
-          mkdir build
-          cd build
+          mkdir build-release
+          cd build-release
           cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
           cmake --build . --config Release
           ctest -VV -C Release
