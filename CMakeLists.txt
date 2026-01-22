@@ -8,15 +8,19 @@ set(CMAKE_VERBOSE_MAKEFILE ON) # Debugging
 
 string(REGEX MATCH "Linux" PROJECT_OS_LINUX ${CMAKE_SYSTEM_NAME})
 
+if(PROJECT_OS_LINUX)
+    message(STATUS "Building under Linux")
+endif()
+
 if(MINGW OR CYGWIN)
-    message("Building under MingW")
+    message(STATUS "Building under MingW")
     set(PROJECT_OS_MINGW 1)
 else()
     set(PROJECT_OS_MINGW 0)
 endif()
 
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND PROJECT_OS_MINGW)
-    message("Building under Clang MSYS2")
+    message(STATUS "Building under Clang MSYS2")
     set(PROJECT_OS_CLANG_MSYS2 1)
     set(PROJECT_OS_MINGW 0)
 else()
