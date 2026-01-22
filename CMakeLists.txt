@@ -181,8 +181,12 @@ if(PROJECT_OS_MINGW)
         COMMENT "Generating libnode2 delayed loaded DLL"
     )
 
-    add_custom_target(libnode2-delay
+    add_library(libnode2-delay
+        STATIC IMPORTED
         DEPENDS ${libnode2_delay}
+    )
+    set_target_properties(libnode2-delay PROPERTIES
+        IMPORTED_LOCATION ${libnode2_delay}
     )
 endif()
 
