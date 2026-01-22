@@ -124,7 +124,14 @@ endif()
 add_library(metacall SHARED source/metacall.c ${PLTHook_SOURCE})
 target_include_directories(metacall PRIVATE ${PLTHook_INCLUDE_DIR})
 # target_compile_definitions(metacall PUBLIC PLTHOOK_DEBUG=1) # Add debug info for PLTHook
-target_link_libraries(metacall ${CMAKE_DL_LIBS})
+target_link_libraries(metacall
+    PRIVATE
+    # Dynamic Load libraries
+    ${CMAKE_DL_LIBS}
+
+    # MinGW required libraries for PLTHook
+    $<$<BOOL:${PROJECT_OS_MINGW}>:dbghelp>
+)
 
 # NodeJS library of NodeJS static
 add_library(libnode-static source/libnode.c)
@@ -132,7 +139,12 @@ target_compile_definitions(libnode-static PUBLIC NODE_STATIC=1) # Add definition
 
 # NodeJS static
 add_executable(node-static source/node-static.c)
-target_link_libraries(node-static libnode-static ${CMAKE_DL_LIBS} metacall)
+target_link_libraries(node-static
+    PRIVATE
+    libnode-static
+    ${CMAKE_DL_LIBS}
+    metacall
+)
 set_property(TARGET node-static PROPERTY ENABLE_EXPORTS ON) # Required to export the symbols on the executable
 add_test(NAME node-static
     COMMAND $<TARGET_FILE:node-static>
@@ -143,14 +155,39 @@ add_library(libnode SHARED source/libnode.c)
 
 # NodeJS dynamic
 add_executable(node-dynamic source/node-dynamic.c)
-target_link_libraries(node-dynamic ${CMAKE_DL_LIBS} metacall)
+target_link_libraries(node-dynamic
+    PRIVATE
+    ${CMAKE_DL_LIBS}
+    metacall
+)
 add_test(NAME node-dynamic
     COMMAND $<TARGET_FILE:node-dynamic>
 )
 
+# NodeJS library of NodeJS Loader
+add_library(libnode2 SHARED source/libnode2.c source/libnode2.cpp)
+
+if(PROJECT_OS_MINGW)
+    set(libnode2_delay ${CMAKE_BINARY_DIR}/libnode2_delay.dll.a)
+    set(libnode2_def ${CMAKE_BINARY_DIR}/liblibnode2.def)
+
+    # Generate the delay loaded library
+    add_custom_target(libnode2-delay
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMAND ${GENDEF_EXECUTABLE} $<TARGET_FILE:libnode2>
+        COMMAND ${DLLTOOL_EXECUTABLE} --input-def ${libnode2_def} --output-delaylib ${libnode2_delay} --dllname $<TARGET_FILE:libnode2>
+        DEPENDS libnode2
+        COMMENT "Generating libnode2 delayed loaded DLL"
+    )
+endif()
+
 # Normal Executable
 add_executable(normal-executable source/normal-executable.c)
-target_link_libraries(normal-executable ${CMAKE_DL_LIBS} metacall)
+target_link_libraries(normal-executable
+    PRIVATE
+    ${CMAKE_DL_LIBS}
+    metacall
+)
 add_test(NAME normal-executable
     COMMAND $<TARGET_FILE:normal-executable>
 )
@@ -163,21 +200,42 @@ target_link_libraries(node_loader
 
     # Delay load for MSVC
     $<$<CXX_COMPILER_ID:MSVC>:libnode2>
-    $<$<CXX_COMPILER_ID:MSVC>:delayimp>
+
+    # Delay load for MSVC & Clang on MSYS2
+    $<$<OR:$<CXX_COMPILER_ID:MSVC>,$<BOOL:${PROJECT_OS_CLANG_MSYS2}>>:delayimp>
+
+    # Delay load for MingW
+    $<$<BOOL:${PROJECT_OS_MINGW}>:${libnode2_delay}>
 )
 target_link_options(node_loader
     PRIVATE
     # TODO: Add flags for gcc?
+
+    # Delay load for Clang on MacOS
     $<$<AND:$<BOOL:${APPLE}>,$<CXX_COMPILER_ID:AppleClang,Clang>>:-Wl,-undefined,dynamic_lookup>
+
+    # Delay load for MSVC
     $<$<CXX_COMPILER_ID:MSVC>:/DELAYLOAD:$<TARGET_FILE_BASE_NAME:libnode2>.dll>
+
+    # Delay load for Clang on MSYS2
+    $<$<BOOL:${PROJECT_OS_CLANG_MSYS2}>:-delayload:$<TARGET_FILE_BASE_NAME:libnode2>.dll>
 )
 
-# NodeJS library of NodeJS Loader
-add_library(libnode2 SHARED source/libnode2.c source/libnode2.cpp)
+if(PROJECT_OS_MINGW)
+    # Make node_loader depend on delayed libnode2
+    add_dependencies(node_loader libnode2-delay)
+endif()
 
 # List libraries of a process
 add_executable(list-library-test source/list-library-test.cpp)
-target_link_libraries(list-library-test ${CMAKE_DL_LIBS} libnode)
+target_link_libraries(list-library-test
+    PRIVATE
+    ${CMAKE_DL_LIBS}
+    libnode
+
+    # MinGW required libraries
+    $<$<BOOL:${PROJECT_OS_MINGW}>:psapi>
+)
 add_test(NAME list-library-test
     COMMAND $<TARGET_FILE:list-library-test>
 )
