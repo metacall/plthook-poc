@@ -7,16 +7,16 @@ on:
 
 jobs:
   test:
-    name: Tests for MetaCall
+    name: Tests
     strategy:
       fail-fast: false
       matrix:
-        build: [Debug, Release]
         os: [
           macos-14, macos-15, macos-15-intel,
           ubuntu-22.04, ubuntu-24.04,
           windows-2019, windows-2022, windows-2025
         ]
+        build: [Debug, Release]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -26,8 +26,38 @@ jobs:
         cd build
         cmake -DCMAKE_BUILD_TYPE=${{ matrix.build }} ..
         cmake --build . --config ${{ matrix.build }}
-        echo "----------------------------------------------------"
-        echo "Build Files:"
-        ls -R
-        echo "----------------------------------------------------"
         ctest -VV -C ${{ matrix.build }}
+
+  test_msys2:
+    name: Tests MSYS2
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { sys: mingw64, env: x86_64 }
+          - { sys: mingw32, env: i686 }
+          - { sys: ucrt64,  env: ucrt-x86_64 }
+          - { sys: clang64, env: clang-x86_64 }
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2.30.0
+        with:
+          msystem: ${{ matrix.sys }}
+          update: true
+          install: >
+            mingw-w64-${{ matrix.env }}-gcc
+          pacboy: >
+            toolchain:p
+            cmake:p
+            ninja:p
+      - name: Run Tests
+        shell: msys2 {0}
+        run: |
+          mkdir build
+          cd build
+          cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
+          cmake --build . --config Release
+          ctest -VV -C Release
