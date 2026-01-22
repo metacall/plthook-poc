@@ -168,7 +168,7 @@ add_test(NAME node-dynamic
 add_library(libnode2 SHARED source/libnode2.c source/libnode2.cpp)
 
 if(PROJECT_OS_MINGW)
-    set(libnode2_delay ${CMAKE_BINARY_DIR}/libnode2_delay.dll.a)
+    set(libnode2_delay ${CMAKE_BINARY_DIR}/liblibnode2-delay.dll.a)
     set(libnode2_def ${CMAKE_BINARY_DIR}/liblibnode2.def)
 
     # Generate the delay loaded library
