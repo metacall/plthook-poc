@@ -69,7 +69,7 @@ endif()
 # ==12635==    by 0x4861188: node_loader (in /metacall-plthook-poc/build/libnode_loader.so)
 # ==12635==    by 0x4856638: load_normal_executable (in /metacall-plthook-poc/build/libmetacall.so)
 # ==12635==    by 0x4896564: (below main) (libc-start.c:332)
-if(PROJECT_OS_LINUX)
+if(PROJECT_OS_LINUX OR PROJECT_OS_MINGW OR PROJECT_OS_CLANG_MSYS2)
     # -O3 not supported, use -O2 by now until we can find why string_function is NULL
     set(CMAKE_C_FLAGS_RELEASE "-O2")
     set(CMAKE_CXX_FLAGS_RELEASE "-O2")
