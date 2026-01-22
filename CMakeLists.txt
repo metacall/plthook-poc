@@ -168,26 +168,19 @@ add_test(NAME node-dynamic
 add_library(libnode2 SHARED source/libnode2.c source/libnode2.cpp)
 
 if(PROJECT_OS_MINGW)
-    set(libnode2_delay ${CMAKE_BINARY_DIR}/liblibnode2-delay.dll.a)
+    set(libnode2_delay ${CMAKE_BINARY_DIR}/liblibnode2.dll.a)
     set(libnode2_def ${CMAKE_BINARY_DIR}/liblibnode2.def)
 
     # Generate the delay loaded library
-    add_custom_command(
-        OUTPUT ${libnode2_delay}
+    add_custom_target(libnode2-delay
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMAND ${GENDEF_EXECUTABLE} $<TARGET_FILE:libnode2>
         COMMAND ${DLLTOOL_EXECUTABLE} --input-def ${libnode2_def} --output-delaylib ${libnode2_delay} --dllname $<TARGET_FILE:libnode2>
         DEPENDS libnode2
         COMMENT "Generating libnode2 delayed loaded DLL"
     )
-
-    add_library(libnode2-delay
-        STATIC IMPORTED
-        DEPENDS ${libnode2_delay}
-    )
-    set_target_properties(libnode2-delay PROPERTIES
-        IMPORTED_LOCATION ${libnode2_delay}
-    )
+    # Make delayed libnode2 depend on libnode2
+    add_dependencies(libnode2-delay libnode2)
 endif()
 
 # Normal Executable
@@ -214,7 +207,7 @@ target_link_libraries(node_loader
     $<$<OR:$<CXX_COMPILER_ID:MSVC>,$<BOOL:${PROJECT_OS_CLANG_MSYS2}>>:delayimp>
 
     # Delay load for MingW
-    $<$<BOOL:${PROJECT_OS_MINGW}>:libnode2-delay>
+    $<$<BOOL:${PROJECT_OS_MINGW}>:libnode2>
 )
 target_link_options(node_loader
     PRIVATE
