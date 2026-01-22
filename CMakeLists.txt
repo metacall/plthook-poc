@@ -129,8 +129,8 @@ target_link_libraries(metacall
     # Dynamic Load libraries
     ${CMAKE_DL_LIBS}
 
-    # MinGW required libraries for PLTHook
-    $<$<BOOL:${PROJECT_OS_MINGW}>:dbghelp>
+    # MinGW and Clang MSYS2 required libraries for PLTHook
+    $<$<OR:$<BOOL:${PROJECT_OS_MINGW}>,$<BOOL:${PROJECT_OS_CLANG_MSYS2}>>:dbghelp>
 )
 
 # NodeJS library of NodeJS static
