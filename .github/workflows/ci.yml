@@ -58,7 +58,6 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
-          cmake --build . --config Release || true
-          ls -laR
-          ctest -VV -C Release
+          cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug ..
+          cmake --build . --config Debug
+          ctest -VV -C Debug
