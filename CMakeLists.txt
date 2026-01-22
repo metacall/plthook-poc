@@ -209,6 +209,10 @@ target_link_libraries(node_loader
 
     # Delay load for MingW
     $<$<BOOL:${PROJECT_OS_MINGW}>:libnode2>
+
+    # Delay load for Clang MSYS2
+    $<$<BOOL:${PROJECT_OS_CLANG_MSYS2}>:libnode2>
+
 )
 target_link_options(node_loader
     PRIVATE
@@ -221,7 +225,7 @@ target_link_options(node_loader
     $<$<CXX_COMPILER_ID:MSVC>:/DELAYLOAD:$<TARGET_FILE_BASE_NAME:libnode2>.dll>
 
     # Delay load for Clang on MSYS2
-    $<$<BOOL:${PROJECT_OS_CLANG_MSYS2}>:-delayload:lib$<TARGET_FILE_BASE_NAME:libnode2>.dll>
+    $<$<BOOL:${PROJECT_OS_CLANG_MSYS2}>:-Wl,-delayload=lib$<TARGET_FILE_BASE_NAME:libnode2>.dll>
 )
 
 if(PROJECT_OS_MINGW)
