@@ -5,23 +5,31 @@
 #include <assert.h>
 
 #if defined(WIN32) || defined(_WIN32)
-#include <windows.h>
-typedef HMODULE dyn_handle_t;
-#define DYN_LIBRARY(lib) lib ".dll"
-#define RTLD_LAZY 0 // Use this as workaround
-#define RTLD_GLOBAL 0
+    #include <windows.h>
+    typedef HMODULE dyn_handle_t;
+
+    #if defined(__CYGWIN__) || defined(__MINGW32__) || defined(__MINGW64__) \
+        || ((defined(__MSYS__) || defined(__MSYS2__)) && defined(__clang__))
+        #define DYN_LIBRARY(lib) "lib" lib ".dll"
+    #else
+        #define DYN_LIBRARY(lib) lib ".dll"
+    #endif
+
+    #define RTLD_LAZY 0 // Use this as workaround
+    #define RTLD_GLOBAL 0
 #else
-#ifndef __USE_GNU
-#define __USE_GNU // This is required for dlinfo and dladdr
-#endif
-#include <dlfcn.h>
-typedef void* dyn_handle_t;
-#ifdef __APPLE__
-#define DYN_LIBRARY(lib) "lib" lib ".dylib"
-#else
-#define DYN_LIBRARY(lib) "lib" lib ".so"
-#include <link.h>
-#endif
+    #ifndef __USE_GNU
+        #define __USE_GNU // This is required for dlinfo and dladdr
+    #endif
+    #include <dlfcn.h>
+    typedef void* dyn_handle_t;
+
+    #ifdef __APPLE__
+        #define DYN_LIBRARY(lib) "lib" lib ".dylib"
+    #else
+        #define DYN_LIBRARY(lib) "lib" lib ".so"
+        #include <link.h>
+    #endif
 #endif
 
 #define DYN_LIBRARY_PATH(path, lib) path DYN_LIBRARY(lib)
@@ -30,13 +38,13 @@ static inline int dyn_open(char *lib, int flags, dyn_handle_t *handle) {
 #if defined(WIN32) || defined(_WIN32)
     *handle = LoadLibrary(lib);
     if (*handle == NULL) {
-        printf("Error: %d\n", GetLastError());
+        printf("Dynamic Link Open Error: %s - %lu\n", lib, GetLastError());
         return 1;
     }
 #else
     *handle = dlopen(lib, flags);
     if (*handle == NULL) {
-        printf("Error: %s\n", dlerror());
+        printf("Dynamic Link Open Error: %s - %s\n", lib, dlerror());
         return 1;
     }
 #endif
@@ -48,7 +56,7 @@ static inline int dyn_sym(dyn_handle_t handle, char *sym, void (**fp)(void)) {
 #if defined(WIN32) || defined(_WIN32)
     *fp = (void (*)(void))GetProcAddress(handle, sym);
     if (*fp == NULL) {
-        printf("Error: %d\n", GetLastError());
+        printf("Dynamic Link Sym Error: %s - %lu\n", sym, GetLastError());
         FreeLibrary(handle);
         return 1;
     }
@@ -61,7 +69,7 @@ static inline int dyn_sym(dyn_handle_t handle, char *sym, void (**fp)(void)) {
     cast.ptr = dlsym(handle, sym);
 
     if (cast.ptr == NULL) {
-        printf("Error: %s\n", dlerror());
+        printf("Dynamic Link Sym Error: %s - %s\n", sym, dlerror());
         dlclose(handle);
         return 1;
     }
@@ -88,7 +96,7 @@ static inline void dyn_symbol_info(void* symbol) {
         printf("Address: %p\n", info.dli_saddr);
         printf("Library: %s\n", (info.dli_fname ? info.dli_fname : "unknown"));
     } else {
-        printf("Error: Failed to get symbol info.\n");
+        printf("Dynamic Link Info Error: Failed to get symbol info.\n");
     }
 #endif
 }
