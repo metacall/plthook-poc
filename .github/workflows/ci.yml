@@ -52,12 +52,12 @@ jobs:
           pacboy: >
             toolchain:p
             cmake:p
-            ninja:p
+            make:p
       - name: Run Tests
         shell: msys2 {0}
         run: |
           mkdir build
           cd build
-          cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
+          cmake -DCMAKE_BUILD_TYPE=Release ..
           cmake --build . --config Release
           ctest -VV -C Release
