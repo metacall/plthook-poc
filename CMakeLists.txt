@@ -6,6 +6,39 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # Required for the IDE
 set(CMAKE_VERBOSE_MAKEFILE ON) # Debugging
 
+string(REGEX MATCH "Linux" PROJECT_OS_LINUX ${CMAKE_SYSTEM_NAME})
+
+if(MINGW OR CYGWIN)
+    message("Building under MingW")
+    set(PROJECT_OS_MINGW 1)
+else()
+    set(PROJECT_OS_MINGW 0)
+endif()
+
+if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND PROJECT_OS_MINGW)
+    message("Building under Clang MSYS2")
+    set(PROJECT_OS_CLANG_MSYS2 1)
+    set(PROJECT_OS_MINGW 0)
+else()
+    set(PROJECT_OS_CLANG_MSYS2 0)
+endif()
+
+if(PROJECT_OS_MINGW)
+    # Find gendef (required for delay load mechanism)
+    find_program(GENDEF_EXECUTABLE gendef)
+
+    if(NOT GENDEF_EXECUTABLE)
+        message(FATAL_ERROR "Program gendef not found. Please ensure MinGW or Cygwin is installed and dlltool is available.")
+    endif()
+
+    # Find dlltool (required for delay load mechanism)
+    find_program(DLLTOOL_EXECUTABLE dlltool)
+
+    if(NOT DLLTOOL_EXECUTABLE)
+        message(FATAL_ERROR "Program dlltool not found. Please ensure MinGW or Cygwin is installed and dlltool is available.")
+    endif()
+endif()
+
 # TODO: -O3 generates a segmentation fault on Linux
 #
 # METACALL load from normal executable
@@ -27,8 +60,6 @@ set(CMAKE_VERBOSE_MAKEFILE ON) # Debugging
 # ==12635==    by 0x4861188: node_loader (in /metacall-plthook-poc/build/libnode_loader.so)
 # ==12635==    by 0x4856638: load_normal_executable (in /metacall-plthook-poc/build/libmetacall.so)
 # ==12635==    by 0x4896564: (below main) (libc-start.c:332)
-string(REGEX MATCH "Linux" PROJECT_OS_LINUX ${CMAKE_SYSTEM_NAME})
-
 if(PROJECT_OS_LINUX)
     # -O3 not supported, use -O2 by now until we can find why string_function is NULL
     set(CMAKE_C_FLAGS_RELEASE "-O2")
