@@ -44,55 +44,48 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug")
 endif()
 
-# Compile options
+# TODO: -O3 generates a segmentation fault on Linux
+#
+# METACALL load from normal executable
+# should_not_call_init constructor has been called and it should not
+# NORMAL EXECUTABLE enum symbols node_loader (1): fflush -> 0x4864018
+# ...
+# NORMAL EXECUTABLE enum symbols node_loader (11): __cxa_finalize -> 0x4863ff8
+# INSIDE NODE LOADER (before string_function call): (nil)
+# ==12635== Jump to the invalid address stated on the next line
+# ==12635==    at 0x0: ???
+# ==12635==    by 0x4861188: node_loader (in /metacall-plthook-poc/build/libnode_loader.so)
+# ==12635==    by 0x4856638: load_normal_executable (in /metacall-plthook-poc/build/libmetacall.so)
+# ==12635==    by 0x4896564: (below main) (libc-start.c:332)
+# ==12635==  Address 0x0 is not stack'd, malloc'd or (recently) free'd
+# ==12635==
+# ==12635== Process terminating with default action of signal 11 (SIGSEGV)
+# ==12635==  Bad permissions for mapped region at address 0x0
+# ==12635==    at 0x0: ???
+# ==12635==    by 0x4861188: node_loader (in /metacall-plthook-poc/build/libnode_loader.so)
+# ==12635==    by 0x4856638: load_normal_executable (in /metacall-plthook-poc/build/libmetacall.so)
+# ==12635==    by 0x4896564: (below main) (libc-start.c:332)
+if(PROJECT_OS_LINUX)
+    # -O3 not supported, use -O2 by now until we can find why string_function is NULL
+    set(CMAKE_C_FLAGS_RELEASE "-O2")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+elseif(MSVC)
+    # /O2 and /O2b not supported, use /O1 /Ob1 by now until we
+    # can find why string_function is an non-NULL invalid pointer
+    set(CMAKE_C_FLAGS_RELEASE "/O1")
+    set(CMAKE_CXX_FLAGS_RELEASE "/O1")
+endif()
+
+# Debug
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     if(MSVC)
-        add_compile_options(/Zi)
-        add_compile_options(/Od)
-        add_compile_options(/DEBUG)
-        add_compile_options(/RTC1)
         # TODO: Not working, seems not been able to locate sanitizer library on ctest
         # add_compile_options(/fsanitize=address)
-    elseif(PROJECT_OS_MINGW)
-        add_compile_options(-g3)
-    else()
-        add_compile_options(-g3)
+    elseif(PROJECT_OS_LINUX OR APPLE OR PROJECT_OS_CLANG_MSYS2)
         add_compile_options(-fsanitize=address)
         add_compile_options(-fsanitize=undefined)
         add_link_options(-fsanitize=address)
         add_link_options(-fsanitize=undefined)
-    endif()
-else()
-    # TODO: -O3 generates a segmentation fault on Linux
-    #
-    # METACALL load from normal executable
-    # should_not_call_init constructor has been called and it should not
-    # NORMAL EXECUTABLE enum symbols node_loader (1): fflush -> 0x4864018
-    # ...
-    # NORMAL EXECUTABLE enum symbols node_loader (11): __cxa_finalize -> 0x4863ff8
-    # INSIDE NODE LOADER (before string_function call): (nil)
-    # ==12635== Jump to the invalid address stated on the next line
-    # ==12635==    at 0x0: ???
-    # ==12635==    by 0x4861188: node_loader (in /metacall-plthook-poc/build/libnode_loader.so)
-    # ==12635==    by 0x4856638: load_normal_executable (in /metacall-plthook-poc/build/libmetacall.so)
-    # ==12635==    by 0x4896564: (below main) (libc-start.c:332)
-    # ==12635==  Address 0x0 is not stack'd, malloc'd or (recently) free'd
-    # ==12635==
-    # ==12635== Process terminating with default action of signal 11 (SIGSEGV)
-    # ==12635==  Bad permissions for mapped region at address 0x0
-    # ==12635==    at 0x0: ???
-    # ==12635==    by 0x4861188: node_loader (in /metacall-plthook-poc/build/libnode_loader.so)
-    # ==12635==    by 0x4856638: load_normal_executable (in /metacall-plthook-poc/build/libmetacall.so)
-    # ==12635==    by 0x4896564: (below main) (libc-start.c:332)
-    if(PROJECT_OS_LINUX OR PROJECT_OS_MINGW)
-        # -O3 not supported, use -O2 by now until we can find why string_function is NULL
-        add_compile_options(-O2)
-        add_compile_options(-O2)
-    elseif(WIN32)
-        # /O2 and /O2b not supported, use /O1 /Ob1 by now until we
-        # can find why string_function is an non-NULL invalid pointer
-        add_compile_options(/O1)
-        add_compile_options(/O1)
     endif()
 endif()
 
