@@ -174,6 +174,7 @@ if(PROJECT_OS_MINGW)
     # Generate the delay loaded library
     add_custom_target(libnode2-delay
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMAND ${CMAKE_COMMAND} -E rm -rf ${libnode2_delay}
         COMMAND ${GENDEF_EXECUTABLE} $<TARGET_FILE:libnode2>
         COMMAND ${DLLTOOL_EXECUTABLE} --input-def ${libnode2_def} --output-delaylib ${libnode2_delay} --dllname $<TARGET_FILE:libnode2>
         DEPENDS libnode2
