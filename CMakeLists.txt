@@ -7,6 +7,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # Required for the IDE
 set(CMAKE_VERBOSE_MAKEFILE ON) # Debugging
 
 string(REGEX MATCH "Linux" PROJECT_OS_LINUX ${CMAKE_SYSTEM_NAME})
+string(REGEX MATCH "FreeBSD" PROJECT_OS_FREEBSD ${CMAKE_SYSTEM_NAME})
+string(REGEX MATCH "NetBSD" PROJECT_OS_NETBSD ${CMAKE_SYSTEM_NAME})
 
 if(PROJECT_OS_LINUX)
     message(STATUS "Building under Linux")
@@ -75,7 +77,7 @@ endif()
 # In the following line, string_fp is null, it happens on all tests:
 # printf("string_function: %p == %p\n", string_function_static, string_fp);
 #
-if(PROJECT_OS_LINUX OR PROJECT_OS_MINGW OR PROJECT_OS_CLANG_MSYS2)
+if(PROJECT_OS_LINUX OR PROJECT_OS_MINGW OR PROJECT_OS_CLANG_MSYS2 OR PROJECT_OS_FREEBSD OR PROJECT_OS_NETBSD)
     # -O3 not supported, use -O2 by now until we can find why string_function is NULL
     set(CMAKE_C_FLAGS_RELEASE "-O2")
     set(CMAKE_CXX_FLAGS_RELEASE "-O2")
