@@ -102,9 +102,9 @@ jobs:
             OS=$(uname -s)
 
             if [ "$OS" = "FreeBSD" ]; then
-              sudo pkg install -y cmake
+              sudo pkg install -y cmake git 
             elif [ "$OS" = "NetBSD" ]; then
-              sudo pkgin -y install cmake gcc
+              sudo pkgin -y install cmake git  
             fi
 
             mkdir build
