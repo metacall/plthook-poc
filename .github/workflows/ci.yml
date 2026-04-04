@@ -102,19 +102,9 @@ jobs:
             OS=$(uname -s)
 
             if [ "$OS" = "FreeBSD" ]; then
-              if pkg install -y cmake 2>/dev/null; then
-                :
-              else
-                fetch https://github.com/Kitware/CMake/releases/download/v3.31.6/cmake-3.31.6.tar.gz
-                tar xzf cmake-3.31.6.tar.gz
-                cd cmake-3.31.6
-                ./bootstrap
-                make
-                sudo make install
-                cd ..
-              fi
+              sudo pkg install -y cmake git 
             elif [ "$OS" = "NetBSD" ]; then
-              sudo pkgin -y install cmake
+              sudo pkgin -y install cmake git  
             fi
 
             mkdir build
