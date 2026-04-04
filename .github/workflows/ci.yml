@@ -71,3 +71,44 @@ jobs:
           cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
           cmake --build . --config Release
           ctest -VV -C Release
+  tests_on_bsd:
+    name: Tests on BSD
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - { name: freebsd, version: '12.4' }
+          - { name: freebsd, version: '15.0' }
+          - { name: netbsd,  version: '10.1' }
+          # - { name: openbsd, version: '7.6' }
+        architecture:
+          - x86-64
+          - arm64
+        build: [Debug, Release]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test on BSD
+        uses: cross-platform-actions/action@v0.32.0
+        with:
+          operating_system: ${{ matrix.os.name }}
+          version: ${{ matrix.os.version }}
+          architecture: ${{ matrix.architecture }}
+          shell: sh
+          run: |
+            set -exuo pipefail
+            OS=$(uname -s)
+
+            if [ "$OS" = "FreeBSD" ]; then
+              pkg install -y cmake
+            elif [ "$OS" = "NetBSD" ]; then
+              sudo pkgin -y install cmake gcc
+            fi
+
+            mkdir build
+            cd build
+            cmake -DCMAKE_BUILD_TYPE=${{ matrix.build }} ..
+            cmake --build .
+            ctest -VV
