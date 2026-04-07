@@ -143,6 +143,8 @@ target_link_libraries(metacall
 
     # MinGW and Clang MSYS2 required libraries for PLTHook
     $<$<OR:$<BOOL:${PROJECT_OS_MINGW}>,$<BOOL:${PROJECT_OS_CLANG_MSYS2}>>:dbghelp>
+
+    # FreeBSD and OpenBSD required libraries for PLTHook
     $<$<PLATFORM_ID:FreeBSD,NetBSD>:util>
 )
 
