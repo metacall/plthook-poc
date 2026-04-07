@@ -78,7 +78,8 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - { name: freebsd, version: '12.4' }
+          # - { name: freebsd, version: '12.4' }
+          # FreeBSD 12.4 is EOL, pkg repository is no longer available so cmake and git cannot be installed
           - { name: freebsd, version: '15.0' }
           - { name: netbsd,  version: '10.1' }
           # - { name: openbsd, version: '7.6' }
